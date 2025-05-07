@@ -15,7 +15,14 @@ return Application::configure(basePath: dirname(__DIR__))
         App\Providers\RepositoryServiceProvider::class,
     ])
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // ...
+        $middleware->alias([
+            'api.response' => ApiResponseMiddleware::class, // Alias para usar em grupos de rotas
+        ]);
+        // Para aplicar globalmente em todas as rotas 'api':
+        // $middleware->appendToGroup('api', [
+        //     ApiResponseMiddleware::class,
+        // ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
