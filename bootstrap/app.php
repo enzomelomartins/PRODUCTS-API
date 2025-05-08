@@ -26,5 +26,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // Captura e renderiza exceções para rotas da API
+        $exceptions->renderable(function (\Throwable $e, $request) {
+            if ($request->is('api/*')) {
+                $errors = \App\Exceptions\ApiExceptionHandler::handle($e);
+                return response()->json($errors, $errors['status']);
+            }
+        });
     })->create();

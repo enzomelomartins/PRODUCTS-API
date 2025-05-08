@@ -57,6 +57,6 @@ class AttachmentController extends Controller
         if ($deleted) {
             return response()->json(null, Response::HTTP_NO_CONTENT);
         }
-        return response()->json(['message' => 'Falha ao deletar anexo.'], Response::HTTP_NOT_FOUND); // Ou 500 se falhar por outra razão
+        return response()->json(['message' => 'Falha ao deletar anexo.'], Response::HTTP_ACCEPTED); // Ou 500 se falhar por outra razão
     }
 }

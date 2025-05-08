@@ -22,4 +22,8 @@ Route::group(['prefix' => 'v1', 'middleware' => \App\Http\Middleware\ApiResponse
     // Para deletar um anexo específico (não o produto)
     Route::delete('/attachments/{attachment}', [AttachmentController::class, 'destroy'])->name('attachments.destroy');
     Route::get('/attachments/{attachment}', [AttachmentController::class, 'show'])->name('attachments.show');
+
+    Route::get('/test-error', function () {
+    abort(500, 'Teste de erro');
+});
 });
