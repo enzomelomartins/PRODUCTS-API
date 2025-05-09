@@ -17,4 +17,9 @@ class EloquentProductRepository extends BaseRepository implements ProductReposit
     {
         return $this->model->with($relations)->get();
     }
+
+    public function query(): \Illuminate\Database\Eloquent\Builder
+    {
+        return $this->model->newQuery();
+    }
 }

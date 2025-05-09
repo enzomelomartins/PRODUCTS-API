@@ -39,4 +39,31 @@ class ProductService
     {
         return $this->productRepository->delete($id);
     }
+
+    public function getFilteredProducts(array $filters): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        $query = $this->productRepository->query();
+
+        if (!empty($filters['category_id'])) {
+            $query->where('category_id', $filters['category_id']);
+        }
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (!empty($filters['name'])) {
+            $query->where('name', 'like', '%' . $filters['name'] . '%');
+        }
+
+        if (!empty($filters['min_price'])) {
+        $query->where('price', '>=', $filters['min_price']);
+    }
+
+        if (!empty($filters['max_price'])) {
+        $query->where('price', '<=', $filters['max_price']);
+        }
+
+        return $query->with(['category', 'attachments'])->paginate($filters['per_page'] ?? 10);
+    }
 }

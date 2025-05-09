@@ -39,4 +39,15 @@ class CategoryService
     {
         return $this->categoryRepository->delete($id);
     }
+
+    public function getFilteredCategories(array $filters): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        $query = $this->categoryRepository->query();
+
+        if (!empty($filters['name'])) {
+            $query->where('name', 'like', '%' . $filters['name'] . '%');
+        }
+
+        return $query->paginate($filters['per_page'] ?? 10);
+    }
 }

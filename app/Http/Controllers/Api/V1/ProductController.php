@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Services\ProductService;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use App\Http\Requests\IndexProductRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
@@ -19,10 +20,16 @@ class ProductController extends Controller
         $this->productService = $productService;
     }
 
-    public function index(): JsonResponse
+    public function index(IndexProductRequest $request): JsonResponse
     {
-        $products = $this->productService->getAllProducts();
-        return response()->json(['data' => $products, 'message' => 'Produtos listados com sucesso.']);
+        try {
+            $filters = $request->validated(); // Obtém os filtros validados
+            $products = $this->productService->getFilteredProducts($filters);
+
+            return response()->json(['data' => $products, 'message' => 'Produtos listados com sucesso.']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], Response::HTTP_NOT_FOUND);
+        }
     }
 
     public function store(StoreProductRequest $request): JsonResponse

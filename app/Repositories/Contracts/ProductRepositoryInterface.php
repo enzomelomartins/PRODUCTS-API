@@ -8,4 +8,6 @@ interface ProductRepositoryInterface extends BaseRepositoryInterface
 {
     // Exemplo de método específico
     public function getAllWithRelations(array $relations): Collection;
+
+    public function query(): \Illuminate\Database\Eloquent\Builder;
 }

@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Services\CategoryService;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
+use App\Http\Requests\IndexCategoryRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
@@ -19,10 +20,16 @@ class CategoryController extends Controller
         $this->categoryService = $categoryService;
     }
 
-    public function index(): JsonResponse
+    public function index(IndexCategoryRequest $request): JsonResponse
     {
-        $categories = $this->categoryService->getAllCategories();
-        return response()->json(['data' => $categories, 'message' => 'Categorias listadas com sucesso.']);
+        try {
+            $filters = $request->validated(); // Obtém os filtros validados
+            $categories = $this->categoryService->getFilteredCategories($filters);
+
+            return response()->json(['data' => $categories, 'message' => 'Categorias listadas com sucesso.']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], Response::HTTP_NOT_FOUND);
+        }
     }
 
     public function store(StoreCategoryRequest $request): JsonResponse

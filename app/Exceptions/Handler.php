@@ -30,6 +30,19 @@ class Handler extends ExceptionHandler
         });
     }
 
+    public function render($request, Throwable $exception)
+    {
+        if ($exception instanceof ValidationException) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Os dados fornecidos são inválidos.',
+                'errors' => $exception->errors(),
+            ], 422);
+        }
+
+        return parent::render($request, $exception);
+    }
+
     private function handleApiException($request, Throwable $exception): JsonResponse
     {
         $statusCode = $this->getStatusCode($exception);

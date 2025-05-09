@@ -11,4 +11,9 @@ class EloquentCategoryRepository extends BaseRepository implements CategoryRepos
     {
         parent::__construct($model);
     }
+
+    public function query(): \Illuminate\Database\Eloquent\Builder
+    {
+        return $this->model->newQuery();
+    }
 }

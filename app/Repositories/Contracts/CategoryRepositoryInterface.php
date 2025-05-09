@@ -4,5 +4,5 @@ namespace App\Repositories\Contracts;
 
 interface CategoryRepositoryInterface extends BaseRepositoryInterface
 {
-    // Specific category methods, if exists
+    public function query(): \Illuminate\Database\Eloquent\Builder;
 }
