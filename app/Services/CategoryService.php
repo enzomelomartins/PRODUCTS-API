@@ -37,6 +37,17 @@ class CategoryService
 
     public function deleteCategory(int $id): bool
     {
+        $category = $this->categoryRepository->findById($id);
+
+        if (!$category) {
+            throw new \Exception('Categoria não encontrada.');
+        }
+
+        // Verifica se a categoria está sendo usada (exemplo: associada a produtos)
+        if ($category->products()->exists()) {
+            throw new \Exception('A categoria está sendo usada e não pode ser apagada.');
+        }
+
         return $this->categoryRepository->delete($id);
     }
 }

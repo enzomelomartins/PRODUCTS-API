@@ -51,10 +51,16 @@ class CategoryController extends Controller
 
     public function destroy(Category $category): JsonResponse
     {
-        $deleted = $this->categoryService->deleteCategory($category->id);
-        if ($deleted) {
-            return response()->json(null, Response::HTTP_NO_CONTENT);
+        try {
+            $deleted = $this->categoryService->deleteCategory($category->id);
+
+            if ($deleted) {
+                return response()->json(null, Response::HTTP_NO_CONTENT);
+            }
+
+            return response()->json(['message' => 'Falha ao deletar categoria.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
         }
-        return response()->json(['message' => 'Falha ao deletar categoria.'], Response::HTTP_INTERNAL_SERVER_ERROR); // Ou 404
     }
 }
