@@ -1,61 +1,190 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# GEMINI-API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## **Descrição**
+O projeto **GEMINI-API** é uma API desenvolvida em Laravel para gerenciar categorias, produtos e anexos. Ele utiliza uma arquitetura baseada em serviços e repositórios, com suporte a validações, tratamento de exceções e respostas padronizadas em JSON.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## **Requisitos do Sistema**
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **PHP**: Versão 8.1 ou superior
+- **Composer**: Versão 2.0 ou superior
+- **Banco de Dados**: MySQL 8.0 ou superior (ou outro banco compatível com Laravel)
+- **Extensões PHP**:
+  - `pdo`
+  - `mbstring`
+  - `openssl`
+  - `tokenizer`
+  - `xml`
+  - `ctype`
+  - `json`
+  - `fileinfo`
+- **Servidor Web**: Apache ou Nginx
+- **Node.js** (opcional): Para gerenciar dependências front-end, se necessário.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## **Instalação**
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 1. **Clonar o Repositório**
+Clone o repositório do projeto para sua máquina local:
+```bash
+git clone https://github.com/seu-usuario/gemini-api.git
+cd gemini-api
+```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### 2. **Instalar Dependências**
+Instale as dependências do projeto usando o Composer:
+```bash
+composer install
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 3. **Configurar o Arquivo `.env`**
+Copie o arquivo `.env.example` para `.env` e configure as variáveis de ambiente:
+```bash
+cp .env.example .env
+```
 
-## Laravel Sponsors
+Edite o arquivo `.env` para configurar o banco de dados e outras variáveis:
+```env
+APP_NAME=GEMINI-API
+APP_ENV=local
+APP_KEY=base64:gerar-sua-chave
+APP_DEBUG=true
+APP_URL=http://localhost
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=gemini_api
+DB_USERNAME=seu_usuario
+DB_PASSWORD=sua_senha
+```
 
-### Premium Partners
+### 4. **Gerar a Chave da Aplicação**
+Gere a chave da aplicação:
+```bash
+php artisan key:generate
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development/)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## **Migração e Seeders**
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 1. **Executar as Migrações**
+Execute as migrações para criar as tabelas no banco de dados:
+```bash
+php artisan migrate
+```
 
-## Code of Conduct
+### 2. **Executar os Seeders (Opcional)**
+Se houver seeders configurados, execute-os para popular o banco de dados com dados iniciais:
+```bash
+php artisan db:seed
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## **Servir a Aplicação**
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Inicie o servidor de desenvolvimento do Laravel:
+```bash
+php artisan serve
+```
 
-## License
+Acesse a aplicação em: [http://localhost:8000](http://localhost:8000)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## **Estrutura do Projeto**
+
+### **Principais Diretórios**
+- **`app/Http/Controllers/Api/V1`**: Controladores da API.
+- **`app/Http/Middleware`**: Middlewares personalizados, como `ApiResponseMiddleware`.
+- **`app/Models`**: Modelos Eloquent, como `Category`, `Product` e `Attachment`.
+- **`app/Services`**: Camada de serviços para lógica de negócios.
+- **`app/Repositories`**: Camada de repositórios para acesso ao banco de dados.
+- **`app/Exceptions`**: Tratamento de exceções personalizadas.
+- **`routes/api.php`**: Definição das rotas da API.
+
+---
+
+## **Rotas da API**
+
+### **Categorias**
+- **GET** `/api/v1/categories`: Listar categorias.
+- **POST** `/api/v1/categories`: Criar uma nova categoria.
+- **GET** `/api/v1/categories/{id}`: Obter detalhes de uma categoria.
+- **PUT** `/api/v1/categories/{id}`: Atualizar uma categoria.
+- **DELETE** `/api/v1/categories/{id}`: Deletar uma categoria.
+
+### **Produtos**
+- **GET** `/api/v1/products`: Listar produtos.
+- **POST** `/api/v1/products`: Criar um novo produto.
+- **GET** `/api/v1/products/{id}`: Obter detalhes de um produto.
+- **PUT** `/api/v1/products/{id}`: Atualizar um produto.
+- **DELETE** `/api/v1/products/{id}`: Deletar um produto.
+
+### **Anexos**
+- **POST** `/api/v1/products/{product}/attachments`: Fazer upload de um anexo para um produto.
+- **GET** `/api/v1/attachments/{id}`: Obter detalhes de um anexo.
+- **DELETE** `/api/v1/attachments/{id}`: Deletar um anexo.
+
+---
+
+## **Tratamento de Exceções**
+
+O projeto utiliza a classe `ApiExceptionHandler` para capturar e formatar exceções em respostas JSON. Exemplo de resposta para uma rota inexistente:
+
+```json
+{
+    "success": false,
+    "status": 404,
+    "message": "Rota não encontrada.",
+    "errors": null,
+    "debug": {
+        "exception": "Symfony\\Component\\HttpKernel\\Exception\\NotFoundHttpException",
+        "message": "",
+        "trace": [...]
+    }
+}
+```
+
+---
+
+## **Testes**
+
+### 1. **Testes Automatizados**
+Se houver testes configurados, execute-os com:
+```bash
+php artisan test
+```
+
+### 2. **Testar Manualmente**
+- Use ferramentas como **Postman** ou **Insomnia** para testar as rotas da API.
+- Certifique-se de enviar os cabeçalhos e payloads corretos para cada rota.
+
+---
+
+## **Contribuição**
+
+1. Faça um fork do repositório.
+2. Crie uma branch para sua feature:
+   ```bash
+   git checkout -b minha-feature
+   ```
+3. Faça commit das suas alterações:
+   ```bash
+   git commit -m "Minha nova feature"
+   ```
+4. Envie para o repositório remoto:
+   ```bash
+   git push origin minha-feature
+   ```
+5. Abra um Pull Request.
+
+---
+
+## **Licença**
+
+Este projeto está licenciado sob a [MIT License](LICENSE).
