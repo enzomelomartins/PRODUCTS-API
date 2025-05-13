@@ -25,6 +25,9 @@ Route::group(['prefix' => 'v1', 'middleware' => \App\Http\Middleware\ApiResponse
     Route::get('/attachments/{attachment}', [AttachmentController::class, 'show'])->name('attachments.show');
     Route::get('/attachments/{attachment}/resize', [AttachmentController::class, 'resize'])->name('attachments.resize');
 
+    Route::apiResource('tags', \App\Http\Controllers\Api\V1\TagController::class);
+    Route::post('/products/{product}/tags', [ProductController::class, 'attachTags'])->name('products.tags.attach');
+
     Route::get('/test-error', function () {
     abort(500, 'Teste de erro');
 });

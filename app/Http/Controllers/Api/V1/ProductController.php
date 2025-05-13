@@ -11,6 +11,7 @@ use App\Http\Requests\IndexProductRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use App\Http\Resources\ProductResource;
+use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
@@ -23,24 +24,45 @@ class ProductController extends Controller
 
     public function index(IndexProductRequest $request): JsonResponse
     {
-        try {
-            $filters = $request->validated();
-            $products = $this->productService->getFilteredProducts($filters);
+        $query = Product::with(['category', 'attachments', 'tags']); // Carrega os relacionamentos
 
-            return response()->json([
-                'data' => ProductResource::collection($products),
-                'message' => 'Produtos listados com sucesso.'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], Response::HTTP_NOT_FOUND);
+        // Filtro por tag
+        if ($request->has('tag_id')) {
+            $query->whereHas('tags', function ($q) use ($request) {
+                $q->where('id', $request->input('tag_id'));
+            });
         }
+
+        // Outros filtros (se necessário)
+        if ($request->has('name')) {
+            $query->where('name', 'like', '%' . $request->input('name') . '%');
+        }
+
+        if ($request->has('status')) {
+            $query->where('status', $request->input('status'));
+        }
+
+        // Paginação
+        $perPage = $request->input('per_page', 15);
+        $products = $query->paginate($perPage);
+
+        return response()->json([
+            'data' => ProductResource::collection($products),
+            'message' => 'Produtos obtidos com sucesso.'
+        ]);
     }
 
     public function store(StoreProductRequest $request): JsonResponse
     {
-        $product = $this->productService->createProduct($request->validated());
+        $data = $request->validated();
+        $tags = $data['tags'] ?? [];
+        unset($data['tags']);
+
+        $product = $this->productService->createProduct($data);
+        $product->tags()->sync($tags);
+
         return response()->json([
-            'data' => new ProductResource($product->load(['category', 'attachments'])),
+            'data' => new ProductResource($product->load(['category', 'attachments', 'tags'])),
             'message' => 'Produto criado com sucesso.'
         ], Response::HTTP_CREATED);
     }
@@ -56,10 +78,15 @@ class ProductController extends Controller
 
     public function update(UpdateProductRequest $request, Product $product): JsonResponse
     {
-        $updated = $this->productService->updateProduct($product->id, $request->validated());
+        $data = $request->validated();
+        $tags = $data['tags'] ?? [];
+        unset($data['tags']);
+
+        $updated = $this->productService->updateProduct($product->id, $data);
+        $product->tags()->sync($tags);
 
         if ($updated) {
-            $product->refresh()->load(['category', 'attachments']);
+            $product->refresh()->load(['category', 'attachments', 'tags']);
             return response()->json([
                 'data' => new ProductResource($product),
                 'message' => 'Produto atualizado com sucesso.'
@@ -78,5 +105,21 @@ class ProductController extends Controller
         }
 
         return response()->json(['message' => 'Falha ao deletar produto.'], Response::HTTP_INTERNAL_SERVER_ERROR);
+    }
+
+    public function attachTags(Request $request, Product $product): JsonResponse
+    {
+        $validated = $request->validate([
+            'tags' => 'required|array',
+            'tags.*' => 'exists:tags,id', // Verifica se os IDs das tags existem na tabela 'tags'
+        ]);
+
+        // Sincroniza as tags com o produto (substitui as existentes)
+        $product->tags()->sync($validated['tags']);
+
+        return response()->json([
+            'data' => $product->load('tags'), // Retorna o produto com as tags associadas
+            'message' => 'Tags associadas ao produto com sucesso.'
+        ]);
     }
 }

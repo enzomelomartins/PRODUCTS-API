@@ -33,4 +33,9 @@ class Product extends Model
     {
         return $this->hasMany(Attachment::class);
     }
+
+    public function tags(): BelongsToMany
+    {
+        return $this->belongsToMany(Tag::class);
+    }
 }

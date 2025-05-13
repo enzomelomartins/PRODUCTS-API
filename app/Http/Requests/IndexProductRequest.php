@@ -19,6 +19,7 @@ class IndexProductRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'tag_id' => 'nullable|integer|exists:tags,id', // Valida o ID da tag
             'category_id' => 'nullable|integer|exists:categories,id',
             'name' => 'nullable|string|max:255',
             'status' => 'nullable|boolean',
@@ -34,6 +35,8 @@ class IndexProductRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'tag_id.integer' => 'O ID da tag deve ser um número inteiro.',
+            'tag_id.exists' => 'A tag selecionada não foi encontrada.',
             'category_id.integer' => 'O ID da categoria deve ser um número inteiro.',
             'category_id.exists' => 'A categoria selecionada não foi encontrada.',
             'name.string' => 'O nome deve ser uma string válida.',

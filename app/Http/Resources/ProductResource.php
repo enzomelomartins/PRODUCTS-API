@@ -10,12 +10,18 @@ class ProductResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'attachments' => AttachmentResource::collection($this->whenLoaded('attachments')),
             'id' => $this->id,
             'name' => $this->name,
             'price' => $this->price,
             'status' => $this->status,
             'category' => new CategoryResource($this->whenLoaded('category')),
-            'attachments' => AttachmentResource::collection($this->whenLoaded('attachments')),
+            'tags' => $this->tags->map(function ($tag) {
+                return [
+                    'id' => $tag->id,
+                    'name' => $tag->name,
+                ];
+            }),
         ];
     }
 }
