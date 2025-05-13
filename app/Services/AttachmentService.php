@@ -33,7 +33,23 @@ class AttachmentService
             throw new Exception("Não foi possível armazenar o arquivo.");
         }
 
-        return $this->attachmentRepository->createForProduct($product, $file, $path);
+        
+        $product = $this->attachmentRepository->createForProduct($product, $file, $path);
+        return $product;
+    }
+
+    /**
+     * Upload multiple attachments for a specific product.
+     */
+    public function uploadMultipleAttachmentsForProduct(Product $product, array $files): array
+    {
+        $attachments = [];
+
+        foreach ($files as $file) {
+            $attachments[] = $this->uploadAttachmentForProduct($product, $file);
+        }
+
+        return $attachments;
     }
 
     public function deleteAttachment(int $attachmentId): bool
@@ -51,5 +67,10 @@ class AttachmentService
     public function getAttachmentById(int $id): ?Attachment
     {
         return $this->attachmentRepository->findById($id);
+    }
+
+    public function getResizedAttachmentUrl(Attachment $attachment, int $width, int $height): string
+    {
+        return $attachment->getResizedUrl($width, $height);
     }
 }
