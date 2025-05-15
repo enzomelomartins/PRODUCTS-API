@@ -19,6 +19,8 @@ class StoreProductRequest extends FormRequest
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0',
             'status' => 'sometimes|boolean',
+            'tags' => 'array|nullable',
+            'tags.*' => 'integer|exists:tags,id',
         ];
     }
 
@@ -36,6 +38,10 @@ class StoreProductRequest extends FormRequest
             'price.numeric' => 'O campo price deve ser um número.',
             'price.min' => 'O campo price deve ser maior ou igual a 0.',
             'status.boolean' => 'O campo status deve ser verdadeiro ou falso.',
+            'tags.array' => 'O campo tags deve ser um array.',
+            'tags.nullable' => 'O campo tags é opcional.',
+            'tags.*.integer' => 'Os itens do campo tags devem ser números inteiros.',
+            'tags.*.exists' => 'Os itens do campo tags devem existir na tabela tags.',
         ];
     }
 }

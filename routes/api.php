@@ -23,4 +23,6 @@ Route::group(['prefix' => 'v1', 'middleware' => \App\Http\Middleware\ApiResponse
     Route::delete('/attachments/{attachment}', [AttachmentController::class, 'destroy'])->name('attachments.destroy');
     Route::get('/attachments/{attachment}', [AttachmentController::class, 'show'])->name('attachments.show');
     Route::get('/attachments/{attachment}/resize', [AttachmentController::class, 'resize'])->name('attachments.resize');
+
+    Route::apiResource('tags', \App\Http\Controllers\Api\V1\TagController::class);
 });

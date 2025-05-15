@@ -15,6 +15,7 @@ class ProductResource extends JsonResource
             'description' => $this->description,
             'price' => 'R$ ' . $this->price,
             'status' => $this->status,
+            'tags' => TagResource::collection($this->whenLoaded('tags')),
             'attachments' => $this->when(
                 $this->attachments && $this->attachments->isNotEmpty(),
                 AttachmentResource::collection($this->attachments)

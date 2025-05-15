@@ -24,7 +24,7 @@ class ProductController extends Controller
 
     public function index(IndexProductRequest $request): JsonResponse
     {
-        $query = Product::with(['category', 'attachments']);
+        $query = Product::with(['category', 'attachments', 'tags']);
 
         // Filtros
         if ($request->has('category_id')) {
@@ -61,9 +61,13 @@ class ProductController extends Controller
         
         $product = $this->productService->createProduct($data);
 
+        if ($request->has('tags')) {
+            $product->tags()->sync($request->input('tags'));
+        }
+
         return response()->json([
             'message' => 'Produto criado com sucesso.',
-            'data' => new ProductResource($product->load(['category', 'attachments'])),
+            'data' => new ProductResource($product->load(['category', 'attachments', 'tags'])),
         ], Response::HTTP_CREATED);
     }
 
@@ -81,8 +85,12 @@ class ProductController extends Controller
         $data = $request->validated();
         $updated = $this->productService->updateProduct($product->id, $data);
 
+        if ($request->has('tags')) {
+            $product->tags()->sync($request->input('tags'));
+        }
+
         if ($updated) {
-            $product->refresh()->load(['category', 'attachments']);
+            $product->refresh()->load(['category', 'attachments', 'tags']);
             return response()->json([
                 'message' => 'Produto atualizado com sucesso.',
                 'data' => new ProductResource($product),
