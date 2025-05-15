@@ -14,6 +14,7 @@ class Product extends Model
 
     protected $fillable = [
         'name',
+        'description',
         'price',
         'status',
         'category_id',
@@ -24,6 +25,11 @@ class Product extends Model
         'status' => 'boolean',
     ];
 
+    protected $hidden = [
+        'created_at',
+        'updated_at'
+    ];
+
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
@@ -32,10 +38,5 @@ class Product extends Model
     public function attachments(): HasMany
     {
         return $this->hasMany(Attachment::class);
-    }
-
-    public function tags(): BelongsToMany
-    {
-        return $this->belongsToMany(Tag::class);
     }
 }

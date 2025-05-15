@@ -4,62 +4,53 @@ namespace App\Exceptions;
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
-use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\HttpKernel\Exception\{
+    NotFoundHttpException,
+    MethodNotAllowedHttpException,
+    HttpExceptionInterface
+};
 use Throwable;
 
 class ApiExceptionHandler
 {
-    public static function handle(Throwable $e)
+    public static function handle(Throwable $e): array
     {
         $status = 500;
-        $message = 'Erro interno no servidor';
         $errors = null;
 
-        switch (true) {
-            case $e instanceof ValidationException:
-                $status = 422;
-                $message = 'Erro de validação';
-                $errors = $e->errors();
-                break;
+        if ($e instanceof NotFoundHttpException && $e->getPrevious() instanceof ModelNotFoundException) {
+            $message = 'ID não encontrado.';
+        } else {
+            $message = match (true) {
+                $e instanceof ValidationException => 'Os dados fornecidos são inválidos.',
+                $e instanceof ModelNotFoundException => 'ID não encontrado.',
+                $e instanceof NotFoundHttpException => 'Esta rota não existe.',
+                $e instanceof MethodNotAllowedHttpException => 'Este método HTTP não é permitido.',
+                $e instanceof HttpExceptionInterface => $e->getMessage() ?: 'Erro HTTP.',
+                default => 'Erro interno no servidor.',
+            };
+        }
 
-            case $e instanceof ModelNotFoundException:
-                $status = 404;
-                $model = class_basename($e->getModel());
-                $message = "$model não encontrado.";
-                break;
+        $status = match (true) {
+            $e instanceof ValidationException => 422,
+            $e instanceof ModelNotFoundException => 404,
+            $e instanceof NotFoundHttpException => 404,
+            $e instanceof MethodNotAllowedHttpException => 405,
+            $e instanceof HttpExceptionInterface => $e->getStatusCode(),
+            default => 500,
+        };
 
-            case $e instanceof NotFoundHttpException:
-                $status = 404;
-                $message = 'Rota não encontrada.';
-                break;
-
-            case $e instanceof MethodNotAllowedHttpException:
-                $status = 405;
-                $message = 'Método HTTP não permitido.';
-                break;
-
-            case $e instanceof HttpExceptionInterface:
-                $status = $e->getStatusCode();
-                $message = $e->getMessage() ?: $message;
-                break;
-
-            default:
-                // erro genérico
-                break;
+        if ($e instanceof ValidationException) {
+            $errors = $e->errors();
         }
 
         return [
-            'success' => false,
             'status' => $status,
-            'message' => $message,
-            'errors' => $errors,
-            'debug' => app()->environment('local') ? [
-                'exception' => get_class($e),
-                'message' => $e->getMessage(),
-                // 'trace' => $e->getTrace()
-            ] : null,
+            'errors' => [
+                'mensagem' => $message,
+                'erro' => $e->getMessage(),
+                ...(is_array($errors) && count($errors) > 1 ? ['detalhes' => $errors] : []),
+                ]
         ];
     }
 }

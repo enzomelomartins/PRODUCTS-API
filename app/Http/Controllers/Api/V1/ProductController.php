@@ -24,16 +24,13 @@ class ProductController extends Controller
 
     public function index(IndexProductRequest $request): JsonResponse
     {
-        $query = Product::with(['category', 'attachments', 'tags']); // Carrega os relacionamentos
+        $query = Product::with(['category', 'attachments']);
 
-        // Filtro por tag
-        if ($request->has('tag_id')) {
-            $query->whereHas('tags', function ($q) use ($request) {
-                $q->where('id', $request->input('tag_id'));
-            });
+        // Filtros
+        if ($request->has('category_id')) {
+            $query->where('category_id', $request->input('category_id'));
         }
 
-        // Outros filtros (se necessário)
         if ($request->has('name')) {
             $query->where('name', 'like', '%' . $request->input('name') . '%');
         }
@@ -46,24 +43,27 @@ class ProductController extends Controller
         $perPage = $request->input('per_page', 15);
         $products = $query->paginate($perPage);
 
+        if ($products->isEmpty()) {
+                return response()->json([
+                    'message' => 'Nenhum produto encontrado.'
+                ]);
+            }
+
         return response()->json([
+            'message' => 'Produtos obtidos com sucesso.',
             'data' => ProductResource::collection($products),
-            'message' => 'Produtos obtidos com sucesso.'
         ]);
     }
 
     public function store(StoreProductRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $tags = $data['tags'] ?? [];
-        unset($data['tags']);
-
+        
         $product = $this->productService->createProduct($data);
-        $product->tags()->sync($tags);
 
         return response()->json([
-            'data' => new ProductResource($product->load(['category', 'attachments', 'tags'])),
-            'message' => 'Produto criado com sucesso.'
+            'message' => 'Produto criado com sucesso.',
+            'data' => new ProductResource($product->load(['category', 'attachments'])),
         ], Response::HTTP_CREATED);
     }
 
@@ -71,25 +71,21 @@ class ProductController extends Controller
     {
         $product->load(['category', 'attachments']);
         return response()->json([
+            'message' => 'Produto obtido com sucesso.',
             'data' => new ProductResource($product),
-            'message' => 'Produto obtido com sucesso.'
         ]);
     }
 
     public function update(UpdateProductRequest $request, Product $product): JsonResponse
     {
         $data = $request->validated();
-        $tags = $data['tags'] ?? [];
-        unset($data['tags']);
-
         $updated = $this->productService->updateProduct($product->id, $data);
-        $product->tags()->sync($tags);
 
         if ($updated) {
-            $product->refresh()->load(['category', 'attachments', 'tags']);
+            $product->refresh()->load(['category', 'attachments']);
             return response()->json([
+                'message' => 'Produto atualizado com sucesso.',
                 'data' => new ProductResource($product),
-                'message' => 'Produto atualizado com sucesso.'
             ]);
         }
 
@@ -105,21 +101,5 @@ class ProductController extends Controller
         }
 
         return response()->json(['message' => 'Falha ao deletar produto.'], Response::HTTP_INTERNAL_SERVER_ERROR);
-    }
-
-    public function attachTags(Request $request, Product $product): JsonResponse
-    {
-        $validated = $request->validate([
-            'tags' => 'required|array',
-            'tags.*' => 'exists:tags,id', // Verifica se os IDs das tags existem na tabela 'tags'
-        ]);
-
-        // Sincroniza as tags com o produto (substitui as existentes)
-        $product->tags()->sync($validated['tags']);
-
-        return response()->json([
-            'data' => $product->load('tags'), // Retorna o produto com as tags associadas
-            'message' => 'Tags associadas ao produto com sucesso.'
-        ]);
     }
 }

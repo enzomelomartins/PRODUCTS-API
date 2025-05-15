@@ -18,4 +18,15 @@ class StoreCategoryRequest extends FormRequest
             'description' => 'nullable|string',
         ];
     }
+
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'O campo name é obrigatório.',
+            'name.string' => 'O campo name deve ser uma string.',
+            'name.max' => 'O campo name deve ter no máximo 255 caracteres.',
+            'name.unique' => 'O campo name já existe.',
+            'description.string' => 'O campo description deve ser uma string.',
+        ];
+    }
 }

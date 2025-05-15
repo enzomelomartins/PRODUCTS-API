@@ -20,15 +20,7 @@ Route::group(['prefix' => 'v1', 'middleware' => \App\Http\Middleware\ApiResponse
     // Rotas específicas para anexos de um produto
     Route::post('/products/{product}/attachments', [AttachmentController::class, 'store'])->name('products.attachments.store');
     Route::post('products/{product}/attachments/multiple', [AttachmentController::class, 'storeMultiple']);
-    // Para deletar um anexo específico (não o produto)
     Route::delete('/attachments/{attachment}', [AttachmentController::class, 'destroy'])->name('attachments.destroy');
     Route::get('/attachments/{attachment}', [AttachmentController::class, 'show'])->name('attachments.show');
     Route::get('/attachments/{attachment}/resize', [AttachmentController::class, 'resize'])->name('attachments.resize');
-
-    Route::apiResource('tags', \App\Http\Controllers\Api\V1\TagController::class);
-    Route::post('/products/{product}/tags', [ProductController::class, 'attachTags'])->name('products.tags.attach');
-
-    Route::get('/test-error', function () {
-    abort(500, 'Teste de erro');
-});
 });

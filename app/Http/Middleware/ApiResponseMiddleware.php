@@ -16,9 +16,9 @@ class ApiResponseMiddleware
         if ($response instanceof JsonResponse && $response->isSuccessful() && isset($response->getData()->data)) {
             $originalData = $response->getData();
             $formattedResponse = [
-                'success' => true,
-                'data' => $originalData->data,
                 'message' => $originalData->message ?? null,
+                'status' => $response->getStatusCode(),
+                'data' => $originalData->data,
             ];
             // Se houver paginação, mescla as informações de paginação
             if (isset($originalData->meta)) {

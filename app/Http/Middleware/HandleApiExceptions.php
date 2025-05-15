@@ -17,7 +17,6 @@ class HandleApiExceptions
             $handled = ApiExceptionHandler::handle($e);
 
             return response()->json([
-                'success' => false,
                 'status' => $handled['status'],
                 'message' => $handled['message'],
                 'errors' => $handled['errors'],
