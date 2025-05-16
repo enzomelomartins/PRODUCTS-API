@@ -21,6 +21,11 @@ class StoreProductRequest extends FormRequest
             'status' => 'sometimes|boolean',
             'tags' => 'array|nullable',
             'tags.*' => 'integer|exists:tags,id',
+            'features' => 'array|nullable',
+            'features.*.group' => 'required_with:features|string|max:255',
+            'features.*.items' => 'array|required_with:features.*.group',
+            'features.*.items.*.key' => 'required|string|max:255',
+            'features.*.items.*.value' => 'required|string|max:255',
         ];
     }
 
@@ -41,7 +46,7 @@ class StoreProductRequest extends FormRequest
             'tags.array' => 'O campo tags deve ser um array.',
             'tags.nullable' => 'O campo tags é opcional.',
             'tags.*.integer' => 'Os itens do campo tags devem ser números inteiros.',
-            'tags.*.exists' => 'Os itens do campo tags devem existir na tabela tags.',
+            'tags.*.exists' => 'Os itens do campo tags devem existir na tabela tags.',            
         ];
     }
 }

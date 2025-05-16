@@ -21,6 +21,17 @@ class ProductResource extends JsonResource
                 AttachmentResource::collection($this->attachments)
             ),
             'category' => ['name' => $this->category->name],
+            'features' => $this->featureGroups->map(function ($group) {
+                return [
+                    'group' => $group->name,
+                    'items' => $group->features->map(function ($feature) {
+                        return [
+                            'key' => $feature->key,
+                            'value' => $feature->value,
+                        ];
+                    }),
+                ];
+            }),
         ];
     }
 }

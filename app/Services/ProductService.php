@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Repositories\Contracts\ProductRepositoryInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Product;
 
 class ProductService
 {
@@ -27,12 +28,42 @@ class ProductService
 
     public function createProduct(array $data): Model
     {
-        return $this->productRepository->create($data);
+        $product = Product::create($data);
+
+        if (isset($data['features'])) {
+            $this->syncFeatures($product, $data['features']);
+        }
+
+        return $product->load(['category', 'attachments', 'tags', 'featureGroups.features']);
     }
 
-    public function updateProduct(int $id, array $data): bool
+    public function updateProduct(int $id, array $data): Model
     {
-        return $this->productRepository->update($id, $data);
+        $product = Product::findOrFail($id);
+        $product->update($data);
+
+        if (isset($data['features'])) {
+            $this->syncFeatures($product, $data['features'], true);
+        }
+
+        return $product->load(['category', 'attachments', 'tags', 'featureGroups.features']);
+    }
+
+    protected function syncFeatures(Product $product, array $features, $update = false): void
+    {
+        if ($update) {
+            $product->featureGroups()->delete();
+        }
+
+        foreach ($features as $group) {
+            $featureGroup = $product->featureGroups()->create(['name' => $group['group']]);
+            foreach ($group['items'] as $item) {
+                $featureGroup->features()->create([
+                    'key' => $item['key'],
+                    'value' => $item['value'],
+                ]);
+            }
+        }
     }
 
     public function deleteProduct(int $id): bool
@@ -57,11 +88,11 @@ class ProductService
         }
 
         if (!empty($filters['min_price'])) {
-        $query->where('price', '>=', $filters['min_price']);
-    }
+            $query->where('price', '>=', $filters['min_price']);
+        }
 
         if (!empty($filters['max_price'])) {
-        $query->where('price', '<=', $filters['max_price']);
+            $query->where('price', '<=', $filters['max_price']);
         }
 
         return $query->with(['category', 'attachments'])->paginate($filters['per_page'] ?? 10);

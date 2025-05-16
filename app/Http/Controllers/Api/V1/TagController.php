@@ -40,15 +40,6 @@ class TagController extends Controller
         ]);
     }
 
-    public function update(UpdateTagRequest $request, Tag $tag): JsonResponse
-    {
-        $tag->update($request->validated());
-        return response()->json([
-            'message' => 'Tag atualizada com sucesso.',
-            'data' => new TagResource($tag),
-        ]);
-    }
-
     public function destroy(Tag $tag): JsonResponse
     {
         $tag->delete();

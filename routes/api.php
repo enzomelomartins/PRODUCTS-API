@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\ProductController;
 use App\Http\Controllers\Api\V1\AttachmentController;
+use App\Http\Controllers\Api\V1\ProductFeatureController;
 
 // Em Laravel 11, o prefixo 'api' e o middleware 'api' não são aplicados por padrão como antes.
 // Precisamos adicioná-los explicitamente ou usar o bootstrap/app.php para configurar isso.
@@ -25,4 +26,8 @@ Route::group(['prefix' => 'v1', 'middleware' => \App\Http\Middleware\ApiResponse
     Route::get('/attachments/{attachment}/resize', [AttachmentController::class, 'resize'])->name('attachments.resize');
 
     Route::apiResource('tags', \App\Http\Controllers\Api\V1\TagController::class);
+
+    // Rotas específicas para features de um produto
+    Route::get('products/{product}/features', [ProductFeatureController::class, 'index']);
+    Route::delete('products/{product}/features', [ProductFeatureController::class, 'destroy']);
 });

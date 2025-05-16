@@ -44,4 +44,9 @@ class Product extends Model
     {
         return $this->belongsToMany(Tag::class);
     }
+
+    public function featureGroups(): HasMany
+    {
+        return $this->hasMany(FeatureGroup::class);
+    }
 }
