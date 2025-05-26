@@ -19,9 +19,9 @@ class Product extends Model
         'category_id',
     ];
 
-    protected $casts = [
-        'price' => 'decimal:2',
-        'status' => 'boolean',
+    protected $hidden = [
+        'created_at',
+        'updated_at',
     ];
 
     public function category(): BelongsTo

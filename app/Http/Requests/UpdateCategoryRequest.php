@@ -24,6 +24,13 @@ class UpdateCategoryRequest extends FormRequest
                 Rule::unique('categories', 'name')->ignore($categoryId),
             ],
             'description' => 'nullable|string',
+            'parent_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('categories', 'id')->where(function ($query) use ($categoryId) {
+                    return $query->where('id', '!=', $categoryId);
+                }),
+            ],
         ];
     }
 }

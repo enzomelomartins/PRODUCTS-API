@@ -8,6 +8,7 @@ use App\Services\CategoryService;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use App\Http\Requests\IndexCategoryRequest;
+use App\Http\Resources\CategoryResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 
@@ -23,10 +24,15 @@ class CategoryController extends Controller
     public function index(IndexCategoryRequest $request): JsonResponse
     {
         try {
-            $filters = $request->validated(); // Obtém os filtros validados
-            $categories = $this->categoryService->getFilteredCategories($filters);
+            $filters = $request->validated();
+            $categories = Category::with('subcategories')
+                ->whereNull('parent_id')
+                ->get();
 
-            return response()->json(['data' => $categories, 'message' => 'Categorias listadas com sucesso.']);
+            return response()->json([
+                'data' => CategoryResource::collection($categories),
+                'message' => 'Categorias listadas com sucesso.'
+            ]);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], Response::HTTP_NOT_FOUND);
         }
@@ -34,26 +40,43 @@ class CategoryController extends Controller
 
     public function store(StoreCategoryRequest $request): JsonResponse
     {
-        $category = $this->categoryService->createCategory($request->validated());
-        return response()->json(['data' => $category, 'message' => 'Categoria criada com sucesso.'], Response::HTTP_CREATED);
-    }
+            $category = Category::create($request->validated());
+            
+            if ($category->parent_id) {
+            $parent = Category::with('subcategories')->find($category->parent_id);
 
-    public function show(Category $category): JsonResponse // Route model binding
+            return response()->json([
+                'data' => new CategoryResource($parent),
+                'message' => 'Categoria criada com sucesso.'
+            ], 201);
+        }
+
+            return response()->json([
+                'data' => new CategoryResource($category),
+                'message' => 'Categoria criada com sucesso.'
+            ], 201);
+        }
+
+    public function show(Category $category): JsonResponse
     {
-        // O CategoryService->getCategoryById não é estritamente necessário aqui com route model binding,
-        // mas pode ser útil se você quiser carregar relações específicas através do serviço.
-        return response()->json(['data' => $category, 'message' => 'Categoria obtida com sucesso.']);
+        $category = Category::find($category->id);
+        return response()->json([
+            'data' => new CategoryResource($category->load('subcategories')),
+            'message' => 'Categoria obtida com sucesso.'
+        ]);
     }
 
     public function update(UpdateCategoryRequest $request, Category $category): JsonResponse
     {
         $updated = $this->categoryService->updateCategory($category->id, $request->validated());
         if ($updated) {
-            // Recarrega o modelo para obter os dados atualizados
             $category->refresh();
-            return response()->json(['data' => $category, 'message' => 'Categoria atualizada com sucesso.']);
+            return response()->json([
+                'data' => new CategoryResource($category),
+                'message' => 'Categoria atualizada com sucesso.'
+            ]);
         }
-        return response()->json(['message' => 'Falha ao atualizar categoria.'], Response::HTTP_INTERNAL_SERVER_ERROR); // Ou 404 se não encontrar
+        return response()->json(['message' => 'Falha ao atualizar categoria.'], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     public function destroy(Category $category): JsonResponse
@@ -62,6 +85,6 @@ class CategoryController extends Controller
         if ($deleted) {
             return response()->json(null, Response::HTTP_NO_CONTENT);
         }
-        return response()->json(['message' => 'Falha ao deletar categoria.'], Response::HTTP_INTERNAL_SERVER_ERROR); // Ou 404
+        return response()->json(['message' => 'Falha ao deletar categoria.'], Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 }

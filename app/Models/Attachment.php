@@ -19,6 +19,11 @@ class Attachment extends Model
         'size',
     ];
 
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
+
     // Accessor para obter a URL completa do anexo
     public function getUrlAttribute(): string
     {
